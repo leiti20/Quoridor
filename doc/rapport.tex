@@ -1,0 +1,258 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\usepackage{geometry}
+\geometry{a4paper, margin=2.5cm}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{listings}
+
+\hypersetup{colorlinks=true, linkcolor=blue, urlcolor=blue}
+
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray}
+}
+
+\begin{document}
+
+% --- PAGE DE GARDE ---
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    {\Large \textbf{UNIVERSITÉ DE ROUEN NORMANDIE}} \\[0.5cm]
+    {\large UFR des Sciences et Techniques} \\[2cm]
+    
+    {\Large \textbf{MASTER INFORMATIQUE - M1}} \\[0.5cm]
+    {\large Année Universitaire 2025-2026} \\[1.5cm]
+    
+    \hrule \\[0.4cm]
+    {\huge \textbf{Quoridor}} \\[0.2cm]
+    {\large \textit{Intelligence Artificielle et Interface Graphique}} \\[0.4cm]
+    \hrule \\[1.5cm]
+    
+    {\large \textbf{U.E. Théorie des Jeux}} \\[0.5cm]
+    {\large Projet de développement} \\[2cm]
+    
+    \begin{minipage}{0.4\textwidth}
+        \begin{flushleft} \large
+            \emph{Auteurs :}\\
+            Mouhoubi Leiticia\\
+            Kherbachi Rima\\
+            Brahimi Thiziri\\
+            Cherifi Yasmine
+        \end{flushleft}
+        
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.4\textwidth}
+        \begin{flushright} \large
+            \emph{Enseignant :}\\
+           Selmi Carla
+        \end{flushright}
+    \end{minipage}
+    
+    \vfill
+    {\large \today}
+\end{titlepage}
+\newpage
+\tableofcontents
+\newpage
+
+\section{Introduction}
+Ce document présente le rapport détaillé du projet de développement du jeu \textbf{Quoridor}.
+Le projet consiste en une implémentation complète des règles officielles du jeu, couplée à une Intelligence Artificielle (IA) performante permettant de jouer contre l'ordinateur à différents niveaux de difficulté. Le tout est encapsulé dans une interface graphique développée en Java Swing.
+
+\section{Technologies Utilisées}
+Le projet repose sur un socle technique moderne et robuste :
+\begin{itemize}
+    \item \textbf{Java 21} : Langage principal du projet, offrant des performances optimales et des fonctionnalités récentes.
+    \item \textbf{Spring Boot 3.2} : Utilisé pour l'injection de dépendances (IoC - Inversion of Control), facilitant la gestion des différents services (Jeu, IA, Règles).
+    \item \textbf{Swing} : API graphique intégrée au JDK pour la réalisation de l'interface utilisateur de bureau.
+    \item \textbf{JUnit 5} : Framework de tests pour garantir la fiabilité de la logique métier (règles, algorithmes de parcours de graphe, IA).
+    \item \textbf{Maven} : Outil de gestion de la construction et des dépendances.
+\end{itemize}
+
+\section{Architecture du Projet}
+L'architecture de l'application est divisée en plusieurs couches fonctionnelles selon le modèle MVC (Modèle-Vue-Contrôleur) étendu :
+\begin{itemize}
+    \item \textbf{Modèle (\texttt{model})} : Représente les entités du jeu (\texttt{Plateau}, \texttt{Pion}, \texttt{Barriere}, \texttt{EtatJeu}, \texttt{Joueur}).
+    \item \textbf{Services (\texttt{service})} : Gère la logique métier, la validation des coups (\texttt{RegleService}), la gestion du déroulement de la partie (\texttt{GameService}) et le calcul des plus courts chemins (\texttt{PathService} à l'aide de l'algorithme BFS).
+    \item \textbf{Intelligence Artificielle (\texttt{ai})} : Implémente les algorithmes de prise de décision pour les joueurs informatisés (Minimax, Alpha-Bêta, etc.).
+    \item \textbf{Interface Utilisateur (\texttt{ui})} : Composants Swing gérant l'affichage graphique interactif et la captation des actions de l'utilisateur.
+\end{itemize}
+
+\section{Modèle de Données et Règles}
+Le plateau est composé de $9 \times 9$ cases. Chaque joueur dispose d'un pion et de 10 barrières au début de la partie.
+
+\subsection{Structures de Données}
+
+Afin de modéliser l'état du jeu efficacement pour l'IA, plusieurs classes métiers ont été développées.
+
+\subsubsection{Pion}
+La classe \texttt{Pion} stocke la position actuelle sur le plateau.
+\begin{lstlisting}[language=Java]
+public class Pion {
+    private int row;
+    private int col;
+    private Joueur joueur;
+
+    public Pion(int row, int col) {
+        this.row = row;
+        this.col = col;
+    }
+    // Getters, Setters, hashCode et equals non-inclus pour la brièveté...
+}
+\end{lstlisting}
+
+\subsubsection{Barriere}
+Représente une barrière placée sur le plateau. Le placement de la barrière repose sur ses coordonnées d'origine et son orientation.
+\begin{lstlisting}[language=Java]
+public class Barriere {
+    public enum Orientation {
+        HORIZONTAL, VERTICAL
+    }
+
+    private int row;
+    private int col;
+    private Orientation orientation;
+
+    public Barriere(int row, int col, Orientation orientation) {
+        this.row = row;
+        this.col = col;
+        this.orientation = orientation;
+    }
+}
+\end{lstlisting}
+
+\subsubsection{Plateau}
+La structure centrale enregistre les listes de barrières et détermine si une case est atteignable.
+\begin{lstlisting}[language=Java]
+public class Plateau {
+    private List<Barriere> barrieres;
+
+    public Plateau() {
+        this.barrieres = new ArrayList<>();
+    }
+
+    public boolean estDansPlateau(int row, int col) {
+        return row >= 0 && row < Constantes.TAILLE_PLATEAU && col >= 0 && col < Constantes.TAILLE_PLATEAU;
+    }
+
+    public void ajouteBarriere(Barriere barriere) {
+        this.barrieres.add(barriere);
+    }
+}
+\end{lstlisting}
+
+
+\subsection{Règles d'évolution}
+À son tour, un joueur a deux options :
+\begin{enumerate}
+    \item \textbf{Déplacer son pion} d'une case (horizontalement ou verticalement). Si les pions se font face, le joueur peut sauter par-dessus son adversaire (voire en diagonale si une barrière se trouve derrière lui).
+    \item \textbf{Placer une barrière} pour ralentir son adversaire. La barrière s'intercale exactement entre les tuiles.
+\end{enumerate}
+La règle fondamentale du Quoridor (le concept de non-enfermement) a été implémentée \textit{via} une recherche de parcours en largeur (BFS) : chaque placement de barrière a fait l'objet d'une validation stricte afin de garantir qu'aucun chemin vers la victoire n'est complètement obstrué pour l'un des joueurs.
+
+\section{Intelligence Artificielle}
+Le composant central de ce projet est l'Intelligence Artificielle. Plusieurs algorithmes d'exploration d'arbre de jeu ont été développés :
+\begin{itemize}
+    \item \textbf{Alpha-Bêta} : Optimisation classique de l'algorithme Minimax, tronquant les branches de l'arbre qui ne peuvent pas influencer la décision finale, réduisant drastiquement le temps de calcul.
+    \item \textbf{Négalpha-bêta (\textit{Nég$\alpha\beta$})} : Variante factorisée de l'Alpha-Bêta tirant parti du principe de jeu à somme nulle entre deux adversaires opposés.
+    \item \textbf{SSS*} : Un algorithme basé sur l'A* et la résolution de graphes d'états, offrant de meilleures performances théoriques que l'Alpha-Bêta sur certains arbres spécifiques grâce à sa nature \textit{best-first search}.
+\end{itemize}
+
+\subsection{Optimisations de l'IA}
+Afin d'atteindre des profondeurs de recherche satisfaisantes (jusqu'à une profondeur de $5$ coups d'anticipation ou plus pour le niveau Difficile), deux structures de données avancées ont été intégrées :
+\begin{enumerate}
+    \item \textbf{Hachage de Zobrist (\texttt{ZobristHasher})} : Méthode permettant de générer une signature/clé numérique unique pour chaque configuration du plateau de jeu de manière paramétrique et extrêmement rapide (opérations XOR uniquement).
+
+\begin{lstlisting}[language=Java]
+@Component
+public class ZobristHasher {
+    private long[][][] pionZobrist;
+    private long[][][] barriereZobrist;
+    private long tourZobrist;
+
+    public long hash(EtatJeu etat) {
+        long h = 0;
+        
+        for (int i=0; i<etat.getJoueurs().size(); i++) {
+            Joueur j = etat.getJoueurs().get(i);
+            h ^= pionZobrist[i][j.getPion().getRow()][j.getPion().getCol()];
+        }
+        
+        for (Barriere b : etat.getPlateau().getBarrieres()) {
+            int o = b.getOrientation() == Barriere.Orientation.HORIZONTAL ? 0 : 1;
+            h ^= barriereZobrist[o][b.getRow()][b.getCol()];
+        }
+        
+        if (etat.getIndexJoueurCourant() == 1) {
+            h ^= tourZobrist;
+        }
+        
+        return h;
+    }
+}
+\end{lstlisting}
+
+    \item \textbf{Table de Transposition} : Cache mémorisant les évaluations et profondeurs relatives des états de jeu déjà explorés et évalués (indexés par les clés de Zobrist). Si l'algorithme aborde une même configuration par une autre série de coups, il récupère immédiatement le meilleur coup pré-calculé sans ré-explorer ces branches, accélérant logarihmiquement l'arbre.
+\end{enumerate}
+
+\section{Interface Graphique et Fonctionnalités}
+L'interface a été conçue en Java Desktop (Swing) et propose une ergonomie intuitive. Les différentes vues couvrent tous les aspects du cahier des charges.
+
+\subsection{Menu Principal}
+Le point d'entrée du jeu, permettant d'accéder aux différents sous-menus (Jouer, Règles, Exemples).
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{doc/quorid.png}
+    \caption{Écran d'Accueil / Menu Principal}
+\end{figure}
+
+\subsection{Règles du Jeu}
+Une vue dédiée à l'apprentissage interactif des règles officielles, rappelant les modes de déplacement, la gestion des sauts et le fonctionnement des barrières.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{doc/regle.png}
+    \caption{Vue des Règles du Jeu intégrées}
+\end{figure}
+
+\subsection{Paramétrage et Lancement}
+Ce panneau propose le choix du mode de jeu (Humain \textit{vs} IA notamment), l'algorithme exact à exécuter et enfin la limitation de profondeur (niveau de difficulté). 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{doc/config.png}
+    \caption{Configuration de la Partie et choix des heuristiques}
+\end{figure}
+
+\subsection{Plateau de Jeu (In-Game)}
+L'interface de la partie en cours affiche le plateau interactif avec la position actuelle des pions (Bleu \textit{vs} Rouge), des barrières noires, et un panel infromatif situé à droite rappelant le tour du joueur ou permettant d'annuler son dernier coup (\textit{Undo}). Les emplacements atteignables sont affichés en surbrillance verte.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{doc/jeu.png}
+    \caption{Interface durant une partie en pleine action}
+\end{figure}
+
+\subsection{Exemples de Parties (Replay)}
+Un module très puissant permettant de revisionner pas-à-pas une partie entière à blanc, avec des boutons de navigation (Précédent / Suivant), pour tester de manière statique la réponse du modèle de données et servir de didacticiel avancé.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{doc/exemple.png}
+    \caption{Exemple de partie en mode "Replay"}
+\end{figure}
+
+\section{Conclusion}
+Le développement de ce jeu complet certifie la mise en pratique d'algorithmes poussés de \textit{Game AI}. La gestion pointilleuse des impératifs mathématiques (BFS de vérification, génération de hashs Zobrist) associée à l'arbre des possibilités (Minimax/Alpha-Bêta combiné aux tables de transposition) a procuré un défi analytique de grande envergure.
+L'usage de Spring Boot au sein d'une Stack Java monolithique a grandement facilité la liaison lâche entre les modèles de données IA et leurs rendus visuels (Swing), ouvrant amplement le code à d'éventuels ajustements ou au développement futur d'un \textit{backend multiplayer}.
+
+\end{document}
