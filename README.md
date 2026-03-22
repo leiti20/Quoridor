@@ -158,6 +158,3 @@ Ce document explicite notamment :
 
 Pour consulter ou recompiler le rapport papier, référez-vous au fichier principal :
 - `doc/rapport.tex`
-
-**Auteurs du projet :** Mouhoubi Leiticia, Kherbachi Rima, Brahimi Thiziri, Cherifi Yasmine.
-**Enseignante / Encadrante :** Selmi Carla.
