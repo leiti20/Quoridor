@@ -145,3 +145,19 @@ mvn clean package
 > pion Joueur 1 (Bleu) en bas, pion Joueur 2 (Rouge) en haut.
 
 ---
+
+## Rapport de Projet
+
+Un rapport de projet complet et détaillé (rédigé en LaTeX) est disponible dans le dossier `doc/`.
+
+Ce document explicite notamment :
+- L'architecture globale du jeu (Modèle-Vue-Contrôleur) et les technologies employées (Java 21, Spring Boot, Swing).
+- La modélisation des entités `Plateau`, `Pion` et `Barriere` agrémentée de snippets de code.
+- Les principes et algorithmes de l'Intelligence Artificielle intégrée (Alpha-Bêta, SSS*).
+- Les mécanismes d'optimisation (Hachage de Zobrist, Tables de Transposition, évaluation heuristique, gestion des plus courts chemins BFS).
+
+Pour consulter ou recompiler le rapport papier, référez-vous au fichier principal :
+- `doc/rapport.tex`
+
+**Auteurs du projet :** Mouhoubi Leiticia, Kherbachi Rima, Brahimi Thiziri, Cherifi Yasmine.
+**Enseignante / Encadrante :** Selmi Carla.
