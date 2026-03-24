@@ -77,9 +77,6 @@ public class PlateauPanel extends JPanel {
         
         if ("Humain vs IA".equals(mode)) {
             typeJ2 = Joueur.Type.IA;
-        } else if ("IA vs IA".equals(mode)) {
-            typeJ1 = Joueur.Type.IA;
-            typeJ2 = Joueur.Type.IA;
         }
         
         Joueur j1 = new Joueur(1, typeJ1 == Joueur.Type.HUMAIN ? "Joueur 1 (Vous)" : "Joueur 1 (IA)", typeJ1, Constantes.LIGNE_BUT_J1);

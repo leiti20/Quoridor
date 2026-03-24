@@ -31,7 +31,7 @@ public class NiveauPanel extends JPanel {
         // Mode
         gbc.gridx = 0; gbc.gridy = 0;
         formPanel.add(new JLabel("Mode de jeu :"), gbc);
-        JComboBox<String> modeBox = new JComboBox<>(new String[]{"Humain vs IA", "Humain vs Humain", "IA vs IA"});
+        JComboBox<String> modeBox = new JComboBox<>(new String[]{"Humain vs IA", "Humain vs Humain"});
         modeBox.setPreferredSize(new Dimension(200, 30));
         gbc.gridx = 1;
         formPanel.add(modeBox, gbc);

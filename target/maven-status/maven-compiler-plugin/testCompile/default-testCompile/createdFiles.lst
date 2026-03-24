@@ -1,5 +1,0 @@
-com\quoridor\ai\TranspositionTableTest.class
-com\quoridor\service\RegleServiceTest.class
-com\quoridor\ai\AlphaBetaServiceTest.class
-com\quoridor\ai\ZobristHasherTest.class
-com\quoridor\service\PathServiceTest.class

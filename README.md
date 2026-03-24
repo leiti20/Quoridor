@@ -73,7 +73,6 @@ mvn clean package
 - **Mode Solitaire** (Humain vs IA) avec choix de l'algorithme et du niveau de difficulté
   - Niveau Facile (profondeur 1), Moyen (profondeur 3), Difficile (profondeur 5)
   - Algorithmes disponibles : Alpha-Bêta, Négαβ, SSS*
-- **Mode Spectateur** (IA vs IA) — observation des comportements algorithmiques
 - **Module Règles** interactif et illustré
 - **Vue Replay / Exemples** — revisionnez une partie coup par coup
 - **Undo** — annulation synchronisée du tour entier (votre coup + réponse IA)
